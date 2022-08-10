@@ -117,6 +117,33 @@ func CreateDataset(c *gin.Context) {
 
 }
 
+func GetFiltersData(c *gin.Context) {
+	datasetID := c.Param("id")
+	dataset, err := actions.GetDataset(datasetID)
+	if err != nil {
+		c.AbortWithStatusJSON(types.ServiceUnavailableCode, types.NewServerUnavailableStandard(fmt.Sprintf("error %e", err)))
+		return
+	}
+	if dataset == nil {
+		c.AbortWithStatusJSON(types.NotFoundCode, types.NewNotFoundStandard(fmt.Sprintf("dataset with id %s not found", datasetID)))
+		return
+	}
+	if dataset.Type != "4wings" {
+		c.AbortWithStatusJSON(types.UnprocessableEntityCode, types.NewUnprocessableEntityStandard([]types.MessageError{{
+			Title:  "type",
+			Detail: "dataset should be of 4wings type",
+		}}))
+		return
+	}
+	log.Debug("Getting filters of 4wings dataset %s", datasetID)
+	data, err := actions.GetFiltersOfDataset(dataset)
+	if err != nil {
+		c.AbortWithStatusJSON(types.ServiceUnavailableCode, types.NewServerUnavailableStandard(fmt.Sprintf("error %e", err)))
+		return
+	}
+	c.JSON(http.StatusOK, data)
+}
+
 func GetContextData(c *gin.Context) {
 	datasetID := c.Param("id")
 	log.Debug("Getting content of context dataset %s", datasetID)
@@ -137,7 +164,7 @@ func GetContextData(c *gin.Context) {
 		return
 	}
 	data, err := utils.ReadFile(fmt.Sprintf("./%s/%s", internal.DATA_FOLDER, dataset.Configuration.FileID))
-	if dataset == nil {
+	if err != nil {
 		c.AbortWithStatusJSON(types.ServiceUnavailableCode, types.NewServerUnavailableStandard(fmt.Sprintf("error %e", err)))
 		return
 	}

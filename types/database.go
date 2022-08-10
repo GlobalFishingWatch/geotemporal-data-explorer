@@ -2,7 +2,7 @@ package types
 
 type Database interface {
 	// GetConnection(id string) *sql.DB
-	// HeatmapQuery(group []*Dataset, x, y, z, pos int64, intervalTable string, filters string, temporalAggr bool, vesselGroupIds []string, rows *Rows) error
+	HeatmapQuery(group []*Dataset, x, y, z, pos int64, intervalTable string, filters string, temporalAggr bool, rows *Rows) error
 	// HeatmapQueryH3(group []*Dataset, x, y, z, pos int64, intervalTable string, filters string, temporalAggr bool, rows *Rows) error
 	// InteractionQuery(dataset *Dataset, x, y, z, pos int64, filters string, cells []int, limit int, vesselGroupIds []string) ([]map[string]interface{}, error)
 	// BindsQuery(dataset *Dataset, z int, filters string, temporalAggregation bool, interval string, numBinds int, vesselGroupIds []string) (map[int]float64, error)
@@ -26,4 +26,5 @@ type LocalDatabase interface {
 	CreateGroupedTables(dataset Dataset, interval string) error
 	CreateRawTable(dataset Dataset) error
 	IngestDataset(dataset Dataset) error
+	GetDistinctValuesOfColumn(table string, field string) ([]interface{}, error)
 }

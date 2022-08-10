@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/4wings/cli/internal/database"
 	tile "github.com/4wings/cli/internal/proto"
 	"github.com/4wings/cli/internal/utils"
 	"github.com/4wings/cli/types"
@@ -321,6 +322,7 @@ func generateCustomPBF(results [][]*Cell, numCellsLat, numCellsLon int, temporal
 }
 
 func getResultsDB(group []*types.Dataset, x, y, z int, pos int64, interval, filter string, numCellsLat, numCellsLon int, temporalAggregation bool) ([]*Cell, error) {
+	fmt.Println(numCellsLat, numCellsLon)
 	datasets := make([]string, len(group))
 	relationalSQLGroup := make([]*types.Dataset, 0)
 	bqGroup := make([]*types.Dataset, 0)
@@ -336,10 +338,10 @@ func getResultsDB(group []*types.Dataset, x, y, z int, pos int64, interval, filt
 	rows := types.NewRows()
 	if len(relationalSQLGroup) > 0 {
 		log.Debug("Obtaining results of postgres datasets")
-		// err := database.LocalDB.HeatmapQuery(relationalSQLGroup, int64(x), int64(y), int64(z), pos, interval, filter, temporalAggregation, rows)
-		// if err != nil {
-		// 	return nil, err
-		// }
+		err := database.LocalDB.HeatmapQuery(relationalSQLGroup, int64(x), int64(y), int64(z), pos, interval, filter, temporalAggregation, rows)
+		if err != nil {
+			return nil, err
+		}
 	}
 	// if len(bqGroup) > 0 {
 	// 	err := database.BQDB.HeatmapQuery(bqGroup, int64(x), int64(y), int64(z), pos, interval, filter, temporalAggregation, vesselGroupIds, rows)
@@ -350,6 +352,7 @@ func getResultsDB(group []*types.Dataset, x, y, z int, pos int64, interval, filt
 	defer rows.Close()
 
 	readed := 0
+
 	results := make([]*Cell, int(numCellsLat)*int(numCellsLon))
 
 	for rows.Next() {

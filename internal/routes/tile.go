@@ -56,7 +56,20 @@ func Tile(c *gin.Context) {
 	var data []byte
 	var headers map[string]string
 	if datasetGroups[0][0].Source != "GFW" && datasetGroups[0][0].Source != "GEE" {
-
+		found := false
+		for _, i := range datasetGroups[0][0].Configuration.Intervals {
+			if i == interval {
+				found = true
+				break
+			}
+		}
+		if !found {
+			c.AbortWithStatusJSON(types.UnprocessableEntityCode, types.NewUnprocessableEntityStandard([]types.MessageError{{
+				Title:  "interval",
+				Detail: fmt.Sprintf("Interval not supported for dataset %s. Values supported: %s", datasetGroups[0][0].ID, datasetGroups[0][0].Configuration.Intervals),
+			}}))
+			return
+		}
 		data, headers, err = actions.GenerateTile4wings(datasetGroups, z, x, y, interval, filters, format, temporalAggr, comparisonDiff, c.Query("resolution"))
 
 	} else {

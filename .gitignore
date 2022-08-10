@@ -1,5 +1,10 @@
 data/
+.vscode/
+lib/
 gee-sa.json
 4wings*
 *.geojson
+*.csv
+*.db
+*.db.wal
 .DS_Store

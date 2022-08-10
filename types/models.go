@@ -15,27 +15,28 @@ type Dataset struct {
 	Description string    `json:"description,omitempty" binding:"required"`
 	Source      string    `json:"source,omitempty" binding:"required"`
 	Type        string    `json:"type,omitempty" binding:"required"`
-	StartDate   time.Time `json:"startDate,omitempty" binding:"required" time_format:"2006-01-02"`
-	EndDate     time.Time `json:"endDate,omitempty" binding:"required" time_format:"2006-01-02"`
-	Unit        string    `json:"unit,omitempty" binding:"required" `
+	StartDate   time.Time `json:"startDate,omitempty" binding:"-" time_format:"2006-01-02"`
+	EndDate     time.Time `json:"endDate,omitempty" binding:"-" time_format:"2006-01-02"`
+	Unit        string    `json:"unit,omitempty" binding:"-" `
 
 	Configuration Configuration `json:"configuration,omitempty" binding:"required,dive,required"`
 }
 
 type Configuration struct {
-	Intervals []string `json:"intervals,omitempty" binding:"-"`
-	Images    []string `json:"images,omitempty" binding:"-"`
-	Band      string   `json:"band,omitempty" binding:"-"`
-	Min       float64  `json:"min,omitempty" binding:"-"`
-	Max       float64  `json:"max,omitempty" binding:"-"`
-	Scale     float64  `json:"scale,omitempty" binding:"-"`
-	Offset    float64  `json:"offset,omitempty" binding:"-"`
-	PoligonID string   `json:"poligonId,omitempty" binding:"-"`
-	FileID    string   `json:"fileId,omitempty"  binding:"required"`
-	MaxZoom   int      `json:"maxZoom,omitempty"  binding:"required"`
-	Table     string   `json:"table,omitempty"`
-	Source    string   `json:"source,omitempty"  binding:"-"`
-	Fields    Fields   `json:"fields,omitempty"`
+	Intervals            []string `json:"intervals,omitempty" binding:"-"`
+	Images               []string `json:"images,omitempty" binding:"-"`
+	Band                 string   `json:"band,omitempty" binding:"-"`
+	Min                  float64  `json:"min" binding:"-"`
+	Max                  float64  `json:"max" binding:"-"`
+	Scale                float64  `json:"scale" binding:"-"`
+	Offset               float64  `json:"offset" binding:"-"`
+	PoligonID            string   `json:"poligonId,omitempty" binding:"-"`
+	FileID               string   `json:"fileId,omitempty"  binding:"required"`
+	MaxZoom              int      `json:"maxZoom,omitempty"  binding:"-"`
+	Table                string   `json:"table,omitempty"`
+	Source               string   `json:"source,omitempty"  binding:"-"`
+	Fields               Fields   `json:"fields,omitempty"`
+	AggregationOperation string   `json:"aggregationOperation,omitempty" binding:"-"`
 }
 
 type Fields struct {

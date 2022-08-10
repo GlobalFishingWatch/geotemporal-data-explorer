@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -16,6 +17,9 @@ const (
 )
 
 func clip(n float64, minValue float64, maxValue float64) float64 {
+	if n == 0 {
+		return 0.00000001
+	}
 	return math.Min(math.Max(n, minValue), maxValue)
 }
 
@@ -106,7 +110,7 @@ func getCells(maxZoom int, lat float64, lon float64) []int {
 	}
 	return cells
 }
-func SanitizeRow(row map[string]interface{}, resolution string) (*types.Row, error) {
+func SanitizeRow(row map[string]interface{}, resolution string, filters []string) (*types.Row, error) {
 	var lat, lon, value float64
 	if val, ok := row["lat"].(float64); ok {
 		lat = val
@@ -127,8 +131,18 @@ func SanitizeRow(row map[string]interface{}, resolution string) (*types.Row, err
 	lat = clip(lat, MIN_LAT, MAX_LAT)
 
 	lon = clip(lon, MIN_LON, MAX_LON)
-
-	timestamp := row["timestamp"].(time.Time)
+	var timestamp time.Time
+	if valTime, ok := row["timestamp"].(time.Time); ok {
+		timestamp = valTime
+	} else if valTime, ok := row["timestamp"].(string); ok {
+		date, err := time.Parse("2006-01-02 15:04:05 UTC", valTime)
+		if err != nil {
+			log.Errorf("error parsing date %e", err)
+		}
+		timestamp = date
+	} else if valTime, ok := row["timestamp"].(int64); ok {
+		timestamp = time.Unix(0, valTime*int64(time.Millisecond))
+	}
 
 	truncateValue := 1 * time.Hour
 	if resolution == "day" {
@@ -141,6 +155,13 @@ func SanitizeRow(row map[string]interface{}, resolution string) (*types.Row, err
 
 	cells := getCells(12, lat, lon)
 	position := getTilePosition(lon, lat, 12)
+	others := map[string]interface{}{}
+	for _, f := range filters {
+		others[f] = row[f]
+	}
+	if nums[1] == 3 && cells[1] == 6032 {
+		fmt.Println("lat", lat, "lon", lon)
+	}
 	data := types.Row{
 		Lat:       lat,
 		Lon:       lon,
@@ -150,7 +171,7 @@ func SanitizeRow(row map[string]interface{}, resolution string) (*types.Row, err
 		Cells:     cells,
 		Position:  position,
 		Value:     value,
-		Others:    row,
+		Others:    others,
 	}
 
 	return &data, nil

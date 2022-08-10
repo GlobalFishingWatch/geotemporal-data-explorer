@@ -71,7 +71,9 @@ func CreateNewContextDataset(dataset types.Dataset) (types.Dataset, error) {
 
 func CreateNew4wingsDataset(dataset types.Dataset) (types.Dataset, error) {
 	log.Debug("Creating new 4wings dataset")
+	dataset.ID = fmt.Sprintf("%s-%d", strcase.ToKebab(dataset.Name), time.Now().UnixMicro())
 	if dataset.Configuration.Fields.Resolution == "hour" {
+		dataset.Configuration.Intervals = []string{"hour", "day", "month"}
 		// create daily and monthly tables
 		err := database.LocalDB.CreateGroupedTables(dataset, "month")
 		if err != nil {
@@ -82,21 +84,35 @@ func CreateNew4wingsDataset(dataset types.Dataset) (types.Dataset, error) {
 			return types.Dataset{}, err
 		}
 	} else if dataset.Configuration.Fields.Resolution == "day" {
+		dataset.Configuration.Intervals = []string{"day", "month"}
 		// create monthly table
 		err := database.LocalDB.CreateGroupedTables(dataset, "month")
 		if err != nil {
 			return types.Dataset{}, err
 		}
 	}
-	err := database.LocalDB.CreateRawTable(dataset)
+	// err := database.LocalDB.CreateRawTable(dataset)
+	// if err != nil {
+	// 	return types.Dataset{}, err
+	// }
+	dataset.Configuration.Table = fmt.Sprintf("4wings_%s", dataset.Configuration.FileID)
+	err := database.LocalDB.IngestDataset(dataset)
 	if err != nil {
 		return types.Dataset{}, err
 	}
+	err = utils.WriteDataset(dataset)
+	return dataset, err
+}
 
-	err = database.LocalDB.IngestDataset(dataset)
-	if err != nil {
-		return types.Dataset{}, err
+func GetFiltersOfDataset(dataset *types.Dataset) (map[string][]interface{}, error) {
+	data := map[string][]interface{}{}
+	for _, f := range dataset.Configuration.Fields.Filters {
+		values, err := database.LocalDB.GetDistinctValuesOfColumn(dataset.Configuration.Table, f)
+		if err != nil {
+			return nil, err
+		}
+		data[f] = values
 	}
 
-	return dataset, nil
+	return data, nil
 }

@@ -42,7 +42,7 @@ var GEE_DATASETS = []types.Dataset{{
 		Images:    []string{"", "HYCOM/sea_temp_salinity", "projects/world-fishing-827/assets/sea_salinity_month", ""},
 		Band:      "salinity_0",
 		Min:       -32768,
-		Max:       99.99,
+		Max:       32763,
 		Scale:     0.001,
 		Offset:    20,
 		Intervals: []string{"day", "month"},
@@ -59,10 +59,10 @@ var GEE_DATASETS = []types.Dataset{{
 	Configuration: types.Configuration{
 		Images:    []string{"", "HYCOM/sea_temp_salinity", "projects/world-fishing-827/assets/sea_temperature_month", ""},
 		Band:      "water_temp_0",
-		Min:       -32768,
-		Max:       32763,
-		Scale:     0.001,
-		Offset:    20,
+		Min:       0,
+		Max:       99.99,
+		Scale:     1,
+		Offset:    0,
 		Intervals: []string{"day", "month"},
 	},
 }}

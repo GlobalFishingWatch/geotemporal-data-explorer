@@ -3,11 +3,13 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/4wings/cli/assets"
 	"github.com/4wings/cli/internal"
 	"github.com/4wings/cli/internal/database"
 	"github.com/4wings/cli/internal/middlewares"
@@ -73,18 +75,22 @@ func RunServer(port int, local bool) {
 	r.Use(middlewares.ErrorHandle())
 	if local {
 
-		r.LoadHTMLGlob("templates/*.html")
+		templ := template.Must(template.New("").ParseFS(assets.F, "templates/*.html"))
+		r.SetHTMLTemplate(templ)
 		r.GET("/", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "index.html", nil)
+			c.HTML(http.StatusOK, "index.html", gin.H{
+				"title": "Main website",
+			})
 		})
 		r.GET("/v1/datasets", routes.GetAllDatasets)
 		r.GET("/v1/datasets/:id", routes.GetDataset)
 		r.DELETE("/v1/datasets/:id", routes.DeleteDataset)
 		r.POST("/v1/datasets", routes.CreateDataset)
 		r.GET("/v1/datasets/:id/data", routes.GetContextData)
-		r.POST("/v1/file", routes.UploadFile)
-		r.GET("/v1/file/:filename/status", routes.GetTempFile)
-		r.GET("/v1/file/:filename/fields", routes.GettingFieldsFile)
+		r.GET("/v1/datasets/:id/filters", routes.GetFiltersData)
+		r.POST("/v1/files", routes.UploadFile)
+		r.GET("/v1/files/:filename/status", routes.GetTempFile)
+		r.GET("/v1/files/:filename/fields", routes.GettingFieldsFile)
 
 	}
 	r.Use(middlewares.DatasetMiddleware)
