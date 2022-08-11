@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/4wings/cli/internal"
+	"github.com/4wings/cli/internal/actions"
 	"github.com/4wings/cli/internal/database"
 	"github.com/4wings/cli/internal/utils"
 	"github.com/4wings/cli/types"
@@ -46,14 +47,15 @@ func UploadFile(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	database.LocalDB.CreateOrUpdateTempFile(types.TempFile{
+	utils.WriteTempFile(types.TempFile{
 		Name:   filename,
 		Status: types.Created,
 	})
 	if typeDataset == "4wings" {
 		go func() {
 			log.Debugf("Starting import of file %s", filename)
-			err := database.LocalDB.CreateOrUpdateTempFile(types.TempFile{
+
+			err := utils.WriteTempFile(types.TempFile{
 				Name:   filename,
 				Status: types.Importing,
 			})
@@ -62,10 +64,10 @@ func UploadFile(c *gin.Context) {
 			}
 			path := fmt.Sprintf("./%s/%s.csv", internal.DATA_FOLDER, filename)
 
-			err = database.LocalDB.IngestFile(path, filename)
+			err = database.LocalDB.IngestFile(path, filename, true)
 			if err != nil {
 				log.Errorf("error importing file %e", err)
-				err := database.LocalDB.CreateOrUpdateTempFile(types.TempFile{
+				err := utils.WriteTempFile(types.TempFile{
 					Name:    filename,
 					Status:  types.Error,
 					Message: err.Error(),
@@ -74,7 +76,7 @@ func UploadFile(c *gin.Context) {
 					log.Errorf("error updating temp_file %e", err)
 				}
 			} else {
-				err := database.LocalDB.CreateOrUpdateTempFile(types.TempFile{
+				err := utils.WriteTempFile(types.TempFile{
 					Name:   filename,
 					Status: types.Completed,
 				})
@@ -100,7 +102,7 @@ func GettingFieldsFile(c *gin.Context) {
 		}}))
 		return
 	}
-	tempFile, err := database.LocalDB.GetTempFile(filename)
+	tempFile, err := actions.GetTempFile(filename)
 	if err != nil || tempFile == nil {
 		c.AbortWithStatusJSON(types.NotFoundCode, types.NewNotFoundStandard(fmt.Sprintf("filename %s not found", filename)))
 		return
@@ -120,7 +122,7 @@ func GettingFieldsFile(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusOK, types.NewPagination(columns))
+	c.JSON(http.StatusOK, columns)
 }
 
 func GetTempFile(c *gin.Context) {
@@ -133,7 +135,7 @@ func GetTempFile(c *gin.Context) {
 		}}))
 		return
 	}
-	tempFile, err := database.LocalDB.GetTempFile(filename)
+	tempFile, err := actions.GetTempFile(filename)
 	if err != nil || tempFile == nil {
 		c.AbortWithStatusJSON(types.NotFoundCode, types.NewNotFoundStandard(fmt.Sprintf("filename %s not found", filename)))
 		return

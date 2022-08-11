@@ -100,6 +100,14 @@ func CreateDataset(c *gin.Context) {
 		c.JSON(200, dataset)
 		return
 	} else if dataset.Type == "4wings" {
+		if dataset.Configuration.AggregationOperation == "" {
+			c.AbortWithStatusJSON(types.UnprocessableEntityCode, types.NewUnprocessableEntityStandard([]types.MessageError{{
+				Title:  "aggregationOperation",
+				Detail: fmt.Sprintf("aggregationOperation is required. Should be one of these values (SUM, AVG, MIN, MAX)"),
+			}}))
+
+			return
+		}
 		dataset, err := actions.CreateNew4wingsDataset(dataset)
 		if err != nil {
 			c.AbortWithStatusJSON(types.ServiceUnavailableCode, types.NewServerUnavailableStandard(err.Error()))

@@ -196,6 +196,10 @@ func parseFilters(c *gin.Context, numGroups int) (filters []string, originalFilt
 }
 
 func DatasetMiddleware(c *gin.Context) {
+	if c.Request.Method == "OPTIONS" {
+		c.Next()
+		return
+	}
 
 	datasetGroups, err := parseDatasets(c)
 	if err != nil {

@@ -19,7 +19,12 @@ func writeHeaders(c *gin.Context) {
 func CorsMiddleware(c *gin.Context) {
 	writeHeaders(c)
 
-	c.Next()
+	if c.Request.Method != "OPTIONS" {
+		c.Next()
+	} else {
+		c.Writer.WriteHeader(204)
+		return
+	}
 
 	if c.IsAborted() {
 		writeHeaders(c)

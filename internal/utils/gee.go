@@ -424,7 +424,7 @@ func init() {
           "functionName": "Date"
         }
       },
-      "7": { "constantValue": "day" },
+      "7": { "constantValue": "{{.interval}}" },
       "8": {
         "functionInvocationValue": {
           "arguments": { "value": { "constantValue": 0 } },
@@ -528,11 +528,12 @@ func generateGIF(z, x, y, numCellsLat, numCellsLon int, dataset *types.Dataset, 
 		"image":       dataset.Configuration.Images[INTERVALS_GEE[interval]],
 		"bounds":      TileToBBOX(x, y, z),
 		"limit":       limit - 1,
+		"interval":    interval,
 	}
 	if interval == "day" {
 		err = jsonBodyDayGEE.Execute(&body, paramsQuery)
 	} else if interval == "month" {
-		err = jsonBodyMonthGEE.Execute(&body, paramsQuery)
+		err = jsonBodyDayGEE.Execute(&body, paramsQuery)
 	} else {
 		return nil, fmt.Errorf("interval %s not supported", interval)
 	}
@@ -637,7 +638,10 @@ func ReadGEE(dataset *types.Dataset, z, x, y int, temporalAggregation bool, date
 		return nil, fmt.Errorf("num layers different of dates. Sent %d Received %d", limit, len(g.Image))
 	}
 	imgWidth, imgHeight := getGifDimensions(g)
-
+	multiplier := 100.0
+	if dataset.Configuration.ValueMultiplier != 0 {
+		multiplier = dataset.Configuration.ValueMultiplier
+	}
 	overpaintImage := image.NewRGBA(image.Rect(0, 0, imgWidth, imgHeight))
 	fmt.Println(" g.Image", len(g.Image))
 	for numImage, img := range g.Image {
@@ -659,7 +663,7 @@ func ReadGEE(dataset *types.Dataset, z, x, y int, temporalAggregation bool, date
 				if r > 0 {
 					value := ((float64(r)*step + float64(dataset.Configuration.Min)) * dataset.Configuration.Scale) + dataset.Configuration.Offset
 					if value > 0 {
-						list[index][0] += int(value * float64(100))
+						list[index][0] += int(value * multiplier)
 						list[index][1]++
 						list[index][2] = 1
 					}

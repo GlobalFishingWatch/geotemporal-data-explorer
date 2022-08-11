@@ -1,0 +1,33 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+before:
+  hooks:
+    - make install
+    - PWD=$(shell pwd)/lib
+    - go mod tidy
+builds:
+  - id: build-darwin-arm64
+    env:
+      - LIB=libduckdb.dylib
+      - CGO_LDFLAGS="-L{{ .Env.FOOBAR }}"
+      - DYLD_LIBRARY_PATH={{ .Env.FOOBAR }}
+      - CGO_CFLAGS="-I{{ .Env.FOOBAR }}"
+    goos:
+      - darwin
+    goarch:
+      - arm64
+    
+archives:
+- format: zip
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+  
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

@@ -1,5 +1,6 @@
 DUCKDB_VERSION=0.4.0
 LIB_PATH := $(shell pwd)/lib
+NAME=geotemporal-data-explorer
 
 ifeq ($(shell uname -s),Darwin)
 LIB_EXT=dylib
@@ -34,6 +35,14 @@ test: $(LIBS)
 build: $(LIBS)
 	$(LDFLAGS) go build -o 4wings -ldflags="-r $(LIB_PATH)" main.go
 
+.PHONY: release-mac
+release-mac: $(LIBS)
+	make ./dist
+	$(LDFLAGS) GOOS=darwin GOARCH=arm64 go build  -o ./dist/${NAME}-arm64 -ldflags="-r $(LIB_PATH)" main.go
+	$(LDFLAGS) GOOS=darwin GOARCH=amd64 go build  -o ./dist/${NAME}-amd64 -ldflags="-r $(LIB_PATH)" main.go
+	lipo -create -output ./dist/${NAME}-osx ./dist/${NAME}-amd64 ./dist/${NAME}-arm64
+
 .PHONY: clean
 clean:
 	rm -rf lib
+	rm -rf dist

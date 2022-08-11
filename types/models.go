@@ -10,15 +10,15 @@ import (
 )
 
 type Dataset struct {
-	ID          string    `json:"id,omitempty"  binding:"-"`
-	Name        string    `json:"name,omitempty" binding:"required"`
-	Description string    `json:"description,omitempty" binding:"required"`
-	Source      string    `json:"source,omitempty" binding:"required"`
-	Type        string    `json:"type,omitempty" binding:"required"`
-	StartDate   time.Time `json:"startDate,omitempty" binding:"-" time_format:"2006-01-02"`
-	EndDate     time.Time `json:"endDate,omitempty" binding:"-" time_format:"2006-01-02"`
-	Unit        string    `json:"unit,omitempty" binding:"-" `
-
+	ID            string        `json:"id,omitempty"  binding:"-"`
+	Name          string        `json:"name,omitempty" binding:"required"`
+	Description   string        `json:"description,omitempty" binding:"-"`
+	Source        string        `json:"source,omitempty" binding:"required"`
+	Type          string        `json:"type,omitempty" binding:"required"`
+	StartDate     time.Time     `json:"startDate,omitempty" binding:"-" time_format:"2006-01-02"`
+	EndDate       time.Time     `json:"endDate,omitempty" binding:"-" time_format:"2006-01-02"`
+	Unit          string        `json:"unit,omitempty" binding:"-" `
+	Status        string        `json:"status,omitempty" binding:"-"`
 	Configuration Configuration `json:"configuration,omitempty" binding:"required,dive,required"`
 }
 
@@ -37,6 +37,7 @@ type Configuration struct {
 	Source               string   `json:"source,omitempty"  binding:"-"`
 	Fields               Fields   `json:"fields,omitempty"`
 	AggregationOperation string   `json:"aggregationOperation,omitempty" binding:"-"`
+	ValueMultiplier      float64  `json:"valueMultiplier,omitempty" binding:"-"`
 }
 
 type Fields struct {

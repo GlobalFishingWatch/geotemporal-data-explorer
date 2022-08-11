@@ -8,3 +8,6 @@ gee-sa.json
 *.db
 *.db.wal
 .DS_Store
+dist/
+
+dist/

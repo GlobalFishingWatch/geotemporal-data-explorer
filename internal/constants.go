@@ -9,8 +9,13 @@ import (
 
 const DATA_FOLDER = "data"
 const DATASETS_FILE = "datasets.json"
+const TEMP_FILES_FILE = "files.json"
+const STATUS_IMPORTING = "importing"
+const STATUS_COMPLETED = "completed"
+const STATUS_ERROR = "error"
 
 var DATASETS_PATH = fmt.Sprintf("./%s/%s", DATA_FOLDER, DATASETS_FILE)
+var TEMP_FILES_PATH = fmt.Sprintf("./%s/%s", DATA_FOLDER, TEMP_FILES_FILE)
 var GEE_DATASETS = []types.Dataset{{
 	ID:          "public-global-water-temperature:v20220801",
 	Name:        "Global Temperature",
@@ -57,13 +62,68 @@ var GEE_DATASETS = []types.Dataset{{
 	EndDate:     time.Date(2022, 1, 31, 0, 0, 0, 0, time.UTC),
 	Unit:        "mg/m^3",
 	Configuration: types.Configuration{
-		Images:    []string{"", "HYCOM/sea_temp_salinity", "projects/world-fishing-827/assets/sea_temperature_month", ""},
-		Band:      "water_temp_0",
+		Images:    []string{"", "NASA/OCEANDATA/MODIS-Aqua/L3SMI", "projects/world-fishing-827/assets/sea_chlorophyl_month", ""},
+		Band:      "chlor_a",
 		Min:       0,
 		Max:       99.99,
 		Scale:     1,
 		Offset:    0,
 		Intervals: []string{"day", "month"},
+	},
+}, {
+	ID:          "public-global-climate-projections-tasmin:v20220801",
+	Name:        "Near surface air temperature",
+	Description: "Daily mean of the daily-minimum near-surface air temperature",
+	Source:      "GEE",
+	Type:        "4wings",
+	StartDate:   time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC),
+	EndDate:     time.Date(2030, 12, 31, 0, 0, 0, 0, time.UTC),
+	Unit:        "K",
+	Configuration: types.Configuration{
+		Images:    []string{"", "", "projects/world-fishing-827/assets/climate_projections_tasmin_month", ""},
+		Band:      "tasmin",
+		Min:       165.31,
+		Max:       318.89,
+		Scale:     1,
+		Offset:    0,
+		Intervals: []string{"month"},
+	},
+}, {
+	ID:          "public-global-climate-projections-pr:v20220801",
+	Name:        "Near surface precipitation",
+	Description: "Daily mean of precipitation at surface; includes both liquid and solid phases from all types of clouds (both large-scale and convective)",
+	Source:      "GEE",
+	Type:        "4wings",
+	StartDate:   time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC),
+	EndDate:     time.Date(2030, 12, 31, 0, 0, 0, 0, time.UTC),
+	Unit:        "kg/(m^2*s)",
+	Configuration: types.Configuration{
+		Images:          []string{"", "projects/world-fishing-827/assets/climate_projections_day", "projects/world-fishing-827/assets/climate_projections_pr_month", ""},
+		Band:            "pr",
+		Min:             0,
+		Max:             0.0016,
+		Scale:           1,
+		Offset:          0,
+		Intervals:       []string{"day", "month"},
+		ValueMultiplier: 10000,
+	},
+}, {
+	ID:          "public-global-terra-atmosphere",
+	Name:        "Aerosol",
+	Description: "",
+	Source:      "GEE",
+	Type:        "4wings",
+	StartDate:   time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC),
+	EndDate:     time.Date(2030, 12, 31, 0, 0, 0, 0, time.UTC),
+	Unit:        "kg/(m^2*s)",
+	Configuration: types.Configuration{
+		Images:    []string{"", "", "MODIS/061/MOD08_M3", ""},
+		Band:      "Aerosol_Optical_Depth_Land_Ocean_Mean_Mean",
+		Min:       -100,
+		Max:       5000,
+		Scale:     0.001,
+		Offset:    0,
+		Intervals: []string{"month"},
 	},
 }}
 var GFW_DATASETS = []types.Dataset{{

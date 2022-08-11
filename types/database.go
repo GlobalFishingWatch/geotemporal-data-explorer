@@ -17,12 +17,9 @@ type Database interface {
 
 type LocalDatabase interface {
 	Database
-	GetAllDatasets() ([]Dataset, error)
-	IngestFile(path string, name string) error
+	IngestFile(path string, name string, isDBFields bool) error
 	GetSchema(tablename string) ([]ColumnSchema, error)
 	DropTable(tablename string) error
-	CreateOrUpdateTempFile(tempFile TempFile) error
-	GetTempFile(name string) (*TempFile, error)
 	CreateGroupedTables(dataset Dataset, interval string) error
 	CreateRawTable(dataset Dataset) error
 	IngestDataset(dataset Dataset) error

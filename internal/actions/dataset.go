@@ -56,6 +56,13 @@ func DeleteDataset(id string) error {
 		if err != nil {
 			log.Errorf("error removing table %s: %e", dataset.Configuration.FileID, err)
 		}
+		database.LocalDB.DropTable(dataset.Configuration.Table)
+		for _, interval := range dataset.Configuration.Intervals {
+			for i := 0; i <= 12; i++ {
+				database.LocalDB.DropTable(fmt.Sprintf("%s_%s_z%d", dataset.Configuration.Table, interval, i))
+			}
+		}
+
 	}
 	return utils.DeleteDataset(id)
 }
@@ -91,16 +98,15 @@ func CreateNew4wingsDataset(dataset types.Dataset) (types.Dataset, error) {
 			return types.Dataset{}, err
 		}
 	}
+	dataset.Status = types.Created
+	dataset.Configuration.Table = fmt.Sprintf("4wings_%s", dataset.Configuration.FileID)
 	// err := database.LocalDB.CreateRawTable(dataset)
 	// if err != nil {
 	// 	return types.Dataset{}, err
 	// }
-	dataset.Configuration.Table = fmt.Sprintf("4wings_%s", dataset.Configuration.FileID)
-	err := database.LocalDB.IngestDataset(dataset)
-	if err != nil {
-		return types.Dataset{}, err
-	}
-	err = utils.WriteDataset(dataset)
+	err := utils.WriteDataset(dataset)
+	go database.LocalDB.IngestDataset(dataset)
+
 	return dataset, err
 }
 

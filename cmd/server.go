@@ -73,15 +73,21 @@ func RunServer(port int, local bool) {
 	r.Use(gin.Recovery())
 	r.Use(middlewares.CorsMiddleware)
 	r.Use(middlewares.ErrorHandle())
+
 	if local {
 
-		templ := template.Must(template.New("").ParseFS(assets.F, "templates/*.html"))
+		templ := template.Must(template.New("").ParseFS(assets.F, "*.html"))
 		r.SetHTMLTemplate(templ)
 		r.GET("/", func(c *gin.Context) {
 			c.HTML(http.StatusOK, "index.html", gin.H{
 				"title": "Main website",
 			})
 		})
+		r.GET("/v1/close", func(c *gin.Context) {
+			database.LocalDB.Close()
+			c.JSON(http.StatusOK, gin.H{"ok": 1})
+		})
+		r.StaticFS("/data-explorer", http.FS(assets.F))
 		r.GET("/v1/datasets", routes.GetAllDatasets)
 		r.GET("/v1/datasets/:id", routes.GetDataset)
 		r.DELETE("/v1/datasets/:id", routes.DeleteDataset)

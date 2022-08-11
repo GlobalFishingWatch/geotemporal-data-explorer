@@ -24,8 +24,9 @@ import (
 )
 
 type duckdb struct {
-	db   *sqlx.DB
-	lock *semaphore.Weighted
+	db       *sqlx.DB
+	dbFields *sqlx.DB
+	lock     *semaphore.Weighted
 }
 
 var heatmapTemplate *template.Template
@@ -90,8 +91,32 @@ CREATE TABLE IF NOT EXISTS "4wings_{{$.name}}"(
 	TIMESTAMP TIMESTAMP,
 	HTIME INTEGER,
 	POSITION BIGINT,
-	POSITIONS INTEGER[],
-	CELLS INTEGER[],
+	cell_0 INTEGER,
+	cell_1 INTEGER,
+	cell_2 INTEGER,
+	cell_3 INTEGER,
+	cell_4 INTEGER,
+	cell_5 INTEGER,
+	cell_6 INTEGER,
+	cell_7 INTEGER,
+	cell_8 INTEGER,
+	cell_9 INTEGER,
+	cell_10 INTEGER,
+	cell_11 INTEGER,
+	cell_12 INTEGER,
+	pos_0 INTEGER,
+	pos_1 INTEGER,
+	pos_2 INTEGER,
+	pos_3 INTEGER,
+	pos_4 INTEGER,
+	pos_5 INTEGER,
+	pos_6 INTEGER,
+	pos_7 INTEGER,
+	pos_8 INTEGER,
+	pos_9 INTEGER,
+	pos_10 INTEGER,
+	pos_11 INTEGER,
+	pos_12 INTEGER,
 	{{range $k := $.fields}}
 	{{index $k "name"}} {{index $k "type"}},
 	{{end}}	
@@ -164,17 +189,7 @@ group by 1 {{if not .temporalAggr}},2{{end}}
 
 func (duckdb *duckdb) Close() {
 	log.Info("Closing connections")
-	duckdb.Close()
-}
-
-func loadDatabase(db *sqlx.DB) error {
-	log.Debug("Initializing duckdb database")
-
-	_, err := db.Exec("CREATE TABLE IF NOT EXISTS temp_file(name VARCHAR, status VARCHAR, message VARCHAR);")
-	if err != nil {
-		return err
-	}
-	return nil
+	duckdb.db.Close()
 }
 
 func openDuckDB() (*duckdb, error) {
@@ -183,28 +198,15 @@ func openDuckDB() (*duckdb, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = loadDatabase(db)
+	dbFields, err := sqlx.Connect("duckdb", "./dbfields.db")
+	if err != nil {
+		return nil, err
+	}
 	return &duckdb{
 		db,
+		dbFields,
 		semaphore.NewWeighted(1),
 	}, err
-}
-
-func (duckdb *duckdb) GetAllDatasets() ([]types.Dataset, error) {
-	log.Debug("Obtaining datasets from duckdb")
-	var query bytes.Buffer
-	err := datasetsTemplate.Execute(&query, map[string]interface{}{})
-	if err != nil {
-		return nil, err
-	}
-
-	datasets := make([]types.Dataset, 0)
-	err = duckdb.db.Select(&datasets, query.String())
-	if err != nil {
-		return nil, err
-	}
-
-	return datasets, nil
 }
 
 func (duckdb *duckdb) existTable(tablename string) bool {
@@ -217,22 +219,35 @@ func (duckdb *duckdb) existTable(tablename string) bool {
 	return true
 }
 
-func (duckdb *duckdb) IngestFile(path string, name string) error {
+func (duckdb *duckdb) IngestFile(path string, name string, isDBFields bool) error {
 	log.Debugf("Ingesting CSV %s with tablename %s", path, name)
 	log.Debugf("Checking if exist table %s", name)
 	if duckdb.existTable(name) {
 		log.Infof("Table with name %s already imported. Skip import", name)
 		return nil
 	}
+	var rowsAffected int64
 
-	res, err := duckdb.db.Exec(fmt.Sprintf(`CREATE TABLE "%s" AS SELECT * FROM read_csv_auto('%s');`, name, path))
+	var query string
+
+	fmt.Println(query)
+	var res sql.Result
+	var err error
+	if isDBFields {
+		query = fmt.Sprintf(`CREATE TABLE "%s" AS SELECT * FROM read_csv_auto('%s') ;`, name, path)
+		res, err = duckdb.dbFields.Exec(query)
+	} else {
+		query = fmt.Sprintf(`CREATE TABLE "%s" AS SELECT * FROM read_csv_auto('%s');`, name, path)
+		res, err = duckdb.db.Exec(query)
+	}
 	if err != nil {
 		return err
 	}
-	rowsAffected, err := res.RowsAffected()
+	rowsAffected, err = res.RowsAffected()
 	if err != nil {
 		return err
 	}
+
 	log.Infof("Imported csv correctly. Rows affected %d", rowsAffected)
 	return nil
 }
@@ -253,7 +268,7 @@ func (duckdb *duckdb) DropTable(tablename string) error {
 
 func (duckdb *duckdb) GetSchema(tablename string) ([]types.ColumnSchema, error) {
 	log.Debugf("Getting schema of table %s", tablename)
-	rows, err := duckdb.db.Query(fmt.Sprintf("select column_name, data_type from information_schema.columns where table_name = '%s';", tablename))
+	rows, err := duckdb.dbFields.Query(fmt.Sprintf("select column_name, data_type from information_schema.columns where table_name = '%s';", tablename))
 	if err != nil {
 		return nil, err
 	}
@@ -269,35 +284,6 @@ func (duckdb *duckdb) GetSchema(tablename string) ([]types.ColumnSchema, error) 
 	}
 
 	return columns, nil
-}
-
-func (duckdb *duckdb) GetTempFile(name string) (*types.TempFile, error) {
-	log.Debugf("Obtaining temp file with name %s", name)
-	rows := duckdb.db.QueryRowx(fmt.Sprintf("select * from temp_file where name = '%s';", name))
-
-	var tempFile types.TempFile
-	err := rows.StructScan(&tempFile)
-	if err != nil {
-		return nil, nil
-	}
-	return &tempFile, nil
-}
-
-func (duckdb *duckdb) CreateOrUpdateTempFile(tempFile types.TempFile) error {
-	log.Debugf("Creating or updating temp file with name %s", tempFile.Name)
-	exists, err := duckdb.GetTempFile(tempFile.Name)
-	if err != nil {
-		return err
-	}
-
-	if exists != nil {
-		log.Debugf("exist temp file. Updating")
-		_, err = duckdb.db.Exec("update temp_file set status = ?, message = ? where name = ?", tempFile.Status, tempFile.Message, tempFile.Name)
-	} else {
-		log.Debugf("NOT exist temp file. Creating")
-		_, err = duckdb.db.Exec("insert into temp_file (name, status, message) values (?, ?, ?)", tempFile.Name, tempFile.Status, tempFile.Message)
-	}
-	return err
 }
 
 func (duckdb *duckdb) CreateGroupedTables(dataset types.Dataset, resolution string) error {
@@ -367,7 +353,8 @@ func (duckdb *duckdb) CreateRawTable(dataset types.Dataset) error {
 
 func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 	log.Debugf("Ingesting data of table name %s", dataset.Configuration.FileID)
-
+	dataset.Status = types.Importing
+	utils.WriteDataset(dataset)
 	df := dataset.Configuration.Fields
 	fields := map[string]interface{}{
 		"lat":       fmt.Sprintf(`"%s"`, df.Lat),
@@ -388,12 +375,16 @@ func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 		"fields": fields,
 	})
 	if err != nil {
+		dataset.Status = types.Error
+		utils.WriteDataset(dataset)
 		log.Errorf("error creating select sql for tables %e", err)
 		return err
 	}
-	rows, err := duckdb.db.Queryx(query.String())
+	rows, err := duckdb.dbFields.Queryx(query.String())
 	if err != nil {
 		log.Errorf("error obtaining source data %e", err)
+		dataset.Status = types.Error
+		utils.WriteDataset(dataset)
 		return err
 	}
 	rowMap := make(map[string]interface{})
@@ -403,16 +394,22 @@ func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 	i := 0
 	go duckdb.insertRow(dataset, ch, &wg)
 	for rows.Next() {
+
 		err := rows.MapScan(rowMap)
 		if err != nil {
 			log.Errorf("error scanning source data %e", err)
 			close(ch)
+			dataset.Status = types.Error
+			utils.WriteDataset(dataset)
 			return err
 		}
+
 		row, err := utils.SanitizeRow(rowMap, dataset.Configuration.Fields.Resolution, dataset.Configuration.Fields.Filters)
 		if err != nil {
 			log.Errorf("error scanning source data %e", err)
 			close(ch)
+			dataset.Status = types.Error
+			utils.WriteDataset(dataset)
 			return err
 		}
 		ch <- *row
@@ -422,11 +419,15 @@ func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 	close(ch)
 	wg.Wait()
 
-	err = duckdb.IngestFile(fmt.Sprintf("./%s/4wings_%s.csv", internal.DATA_FOLDER, dataset.Configuration.FileID), dataset.Configuration.Table)
+	err = duckdb.IngestFile(fmt.Sprintf("./%s/4wings_%s.csv", internal.DATA_FOLDER, dataset.Configuration.FileID), dataset.Configuration.Table, false)
 	if err != nil {
 		log.Errorf("error loading csv raw data %e", err)
+		dataset.Status = types.Error
+		utils.WriteDataset(dataset)
 		return err
 	}
+
+	time.Sleep(2 * time.Second)
 	// os.Remove(fmt.Sprintf("./%s/4wings_%s.csv", internal.DATA_FOLDER, dataset.Configuration.FileID))
 	log.Debugf("Ingested data in raw table 4wings_%s correctly", dataset.Configuration.FileID)
 	if dataset.Configuration.Fields.Resolution == "hour" {
@@ -442,13 +443,19 @@ func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 			})
 			if err != nil {
 				log.Errorf("error obtaining schema %e", err)
+				dataset.Status = types.Error
+				utils.WriteDataset(dataset)
 				return err
 			}
 			_, err := duckdb.db.Exec(query.String())
 			if err != nil {
 				log.Errorf("error insert %e", err)
+				dataset.Status = types.Error
+				utils.WriteDataset(dataset)
 				return err
 			}
+			// rowsAffected, _ := result.RowsAffected()
+
 		}
 		log.Debugf("Generated day tables for table name %s correctly", dataset.Configuration.FileID)
 	}
@@ -465,18 +472,36 @@ func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 			})
 			if err != nil {
 				log.Errorf("error obtaining schema %e", err)
+				dataset.Status = types.Error
+				utils.WriteDataset(dataset)
 				return err
 			}
 			_, err := duckdb.db.Exec(query.String())
 			if err != nil {
 				log.Errorf("error insert %e", err)
+				dataset.Status = types.Error
+				utils.WriteDataset(dataset)
 				return err
 			}
 		}
 		log.Debugf("Generated month tables for table name %s correctly", dataset.Configuration.FileID)
 	}
+	rowMinMax := duckdb.db.QueryRow(fmt.Sprintf(`select max(timestamp) as max, min(timestamp) as min from "4wings_%s"`, dataset.Configuration.FileID))
+	var min, max time.Time
+	err = rowMinMax.Scan(&max, &min)
+	if err != nil {
+		log.Errorf("error calculating max min %e", err)
+		return err
+	}
+	dataset.StartDate = min
+	dataset.EndDate = max
 
-	return nil
+	dataset.Status = types.Completed
+	err = utils.WriteDataset(dataset)
+	if err != nil {
+		log.Errorf("error saving dataset %e", err)
+	}
+	return err
 }
 
 func (duckdb *duckdb) insertRow(dataset types.Dataset, ch chan types.Row, wg *sync.WaitGroup) {
@@ -493,7 +518,7 @@ func (duckdb *duckdb) insertRow(dataset types.Dataset, ch chan types.Row, wg *sy
 	}
 	csvwriter := csv.NewWriter(csvFile)
 
-	header := []string{"lat", "lon", "htime", "timestamp", "position", "value"}
+	header := []string{"htime", "timestamp", "position", "value"}
 	for _, f := range dataset.Configuration.Fields.Filters {
 		header = append(header, f)
 	}
@@ -507,7 +532,7 @@ func (duckdb *duckdb) insertRow(dataset types.Dataset, ch chan types.Row, wg *sy
 	i := 0
 	for row := range ch {
 		date := row.Timestamp.Format("2006-01-02T15:04:05.999Z")
-		rowCSV := []string{fmt.Sprintf("%f", row.Lat), fmt.Sprintf("%f", row.Lon), fmt.Sprintf("%d", row.HTime), fmt.Sprintf(`%s`, date), fmt.Sprintf("%d", row.Position), fmt.Sprintf("%f", row.Value)}
+		rowCSV := []string{fmt.Sprintf("%d", row.HTime), fmt.Sprintf(`%s`, date), fmt.Sprintf("%d", row.Position), fmt.Sprintf("%f", row.Value)}
 
 		for _, f := range dataset.Configuration.Fields.Filters {
 			for _, s := range schema {
@@ -617,7 +642,7 @@ func (duckdb *duckdb) GetDistinctValuesOfColumn(table string, field string) ([]i
 	log.Debugf("obtaining distinct values of column %s in table %s", field, table)
 
 	fields := make([]interface{}, 0)
-	query := fmt.Sprintf(`select distinct %s from "%s"`, field, table)
-	err := duckdb.db.Select(&fields, query)
-	return fields, err
+	// query := fmt.Sprintf(`select distinct %s from "%s"`, field, table)
+	// err := duckdb.db.Select(&fields, query)
+	return fields, nil
 }
