@@ -508,7 +508,7 @@ func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 	dataset.EndDate = max
 
 	dataset.Status = types.Completed
-	// time.Sleep(20 * time.Second)
+	time.Sleep(20 * time.Second)
 	// duckdb.reconnect()
 	err = utils.WriteDataset(dataset)
 	if err != nil {
