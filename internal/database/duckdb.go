@@ -209,6 +209,17 @@ func openDuckDB() (*duckdb, error) {
 	}, err
 }
 
+func (duckdb *duckdb) reconnect() error {
+	log.Debug("reconnecting db")
+	duckdb.Close()
+	db, err := sqlx.Connect("duckdb", fmt.Sprintf("%s?access_mode=READ_WRITE", viper.GetString("local-db")))
+	if err != nil {
+		return err
+	}
+	duckdb.db = db
+	return nil
+}
+
 func (duckdb *duckdb) existTable(tablename string) bool {
 	rows := duckdb.db.QueryRow(fmt.Sprintf("select count(*) as exist from information_schema.tables where table_name = '%s';", tablename))
 	var exist int
@@ -501,6 +512,7 @@ func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 	if err != nil {
 		log.Errorf("error saving dataset %e", err)
 	}
+	err = duckdb.reconnect()
 	return err
 }
 
