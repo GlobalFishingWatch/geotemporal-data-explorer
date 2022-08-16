@@ -171,7 +171,7 @@ func getTilePosition(lon float64, lat float64, maxZoom int) int64 {
 			x = x % 2
 			y = y % 2
 		}
-		pos = fmt.Sprintf("%d%s", (y%2)*2+(x%2), pos)
+		pos = fmt.Sprintf("%s%d", pos, (y%2)*2+(x%2))
 
 	}
 

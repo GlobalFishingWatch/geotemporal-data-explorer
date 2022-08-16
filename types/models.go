@@ -30,7 +30,7 @@ type Configuration struct {
 	Max                  float64  `json:"max" binding:"-"`
 	Scale                float64  `json:"scale" binding:"-"`
 	Offset               float64  `json:"offset" binding:"-"`
-	PoligonID            string   `json:"poligonId,omitempty" binding:"-"`
+	PolygonID            string   `json:"polygonId,omitempty" binding:"-"`
 	FileID               string   `json:"fileId,omitempty"  binding:"required"`
 	MaxZoom              int      `json:"maxZoom,omitempty"  binding:"-"`
 	Table                string   `json:"table,omitempty"`

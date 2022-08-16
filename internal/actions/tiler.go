@@ -372,6 +372,7 @@ func getResultsDB(group []*types.Dataset, x, y, z int, pos int64, interval, filt
 		}
 		cell = int(obj.Cell)
 		htime = int(obj.Htime)
+
 		count = obj.Value
 		if results[cell] == nil {
 			results[cell] = &Cell{

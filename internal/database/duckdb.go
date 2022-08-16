@@ -165,7 +165,7 @@ insert into  "4wings_{{.name}}" (HTIME, TIMESTAMP, POSITION, POSITIONS, CELLS, V
 	tmpl.Funcs(funcMap)
 	tmpl, err = tmpl.Parse(`
 		insert into "4wings_{{.name}}_month_z{{.z}}" (TIMESTAMP,HTIME, POS, CELL{{range $k := $.fields}},{{$k}}{{end}},VALUE) 
-		select date_trunc('month', "timestamp") as timestamp, (extract('year' FROM timestamp)*12 + extract('month' FROM timestamp) - 1) as htime, pos_{{.z}} as pos, cell_{{.z}} as cell{{range $k := $.fields}},{{$k}}{{end}},{{.func}}(VALUE)
+		select date_trunc('month', "timestamp") as timestamp, ((extract('year' FROM timestamp)-1970)*12 + extract('month' FROM timestamp) - 1) as htime, pos_{{.z}} as pos, cell_{{.z}} as cell{{range $k := $.fields}},{{$k}}{{end}},{{.func}}(VALUE)
 		from "4wings_{{.name}}" group by 1, 2, 3, 4{{range $i,$k := $.fields}},{{add $i 5}}{{end}}
 	`)
 	if err != nil {
@@ -198,7 +198,7 @@ func openDuckDB() (*duckdb, error) {
 	if err != nil {
 		return nil, err
 	}
-	dbFields, err := sqlx.Connect("duckdb", "./dbfields.db")
+	dbFields, err := sqlx.Connect("duckdb", "")
 	if err != nil {
 		return nil, err
 	}
@@ -428,7 +428,7 @@ func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 	}
 
 	time.Sleep(2 * time.Second)
-	// os.Remove(fmt.Sprintf("./%s/4wings_%s.csv", internal.DATA_FOLDER, dataset.Configuration.FileID))
+	os.Remove(fmt.Sprintf("./%s/4wings_%s.csv", internal.DATA_FOLDER, dataset.Configuration.FileID))
 	log.Debugf("Ingested data in raw table 4wings_%s correctly", dataset.Configuration.FileID)
 	if dataset.Configuration.Fields.Resolution == "hour" {
 		log.Debugf("Generating day tables for table name %s", dataset.Configuration.FileID)
@@ -591,6 +591,7 @@ func (duckdb *duckdb) HeatmapQueryOfDataset(d *types.Dataset, x, y, z, pos int64
 		cellColumn = fmt.Sprintf("cell_%d", z)
 		min, max := utils.GetMinMaxPositionByTile(x, y, z, 12)
 		posFilter = fmt.Sprintf("position between %s and %s", min, max)
+		// posFilter = fmt.Sprintf("pos_%d = %d", z, pos)
 	} else {
 		tablename = fmt.Sprintf("%s_%s_z%d", d.Configuration.Table, resolution, z)
 
