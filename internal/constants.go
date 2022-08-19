@@ -18,7 +18,7 @@ var DATASETS_PATH = fmt.Sprintf("./%s/%s", DATA_FOLDER, DATASETS_FILE)
 var TEMP_FILES_PATH = fmt.Sprintf("./%s/%s", DATA_FOLDER, TEMP_FILES_FILE)
 var GEE_DATASETS = []types.Dataset{{
 	ID:          "public-global-water-temperature:v20220801",
-	Name:        "Global Temperature",
+	Name:        "Sea surface temperature",
 	Description: "Sea surface temperature is the water temperature at the ocean's surface. The Hybrid Coordinate Ocean Model (HYCOM) is a data-assimilative hybrid isopycnal-sigma-pressure (generalized) coordinate ocean model. The subset of HYCOM data hosted in EE contains the variables salinity, temperature, velocity, and elevation. They have been interpolated to a uniform 0.08 degree lat/long grid between 80.48°S and 80.48°N. The salinity, temperature, and velocity variables have been interpolated to 40 standard z-levels. Source: HYCOM",
 	Source:      "GEE",
 	Type:        "4wings",
@@ -36,7 +36,7 @@ var GEE_DATASETS = []types.Dataset{{
 	},
 }, {
 	ID:          "public-global-water-salinity:v20220801",
-	Name:        "Global Salinity",
+	Name:        "Sea surface salinity",
 	Description: "Sea surface salinity is a key parameter to estimate the influence of oceans on climate. Along with temperature, salinity is a key factor that determines the density of ocean water and thus determines the convection and re-emergence of water masses. The thermohaline circulation crosses all the oceans in surface and at depth, driven by temperature and salinity. A global “conveyor belt” is a simple model of the large-scale thermohaline circulation. Deep-water forms in the North Atlantic, sinks, moves south, circulates around Antarctica, and finally enters the Indian, Pacific, and Atlantic basins. Currents bring cold water masses from north to south and vice versa. This thermohaline circulation greatly influences the formation of sea ice at the world’s poles, and carries ocean food sources and sea life around the planet, as well as affects rainfall patterns, wind patterns, hurricanes and monsoons. Source: EU Copernicus Marine Service Information.",
 	Source:      "GEE",
 	Type:        "4wings",
@@ -54,7 +54,7 @@ var GEE_DATASETS = []types.Dataset{{
 	},
 }, {
 	ID:          "public-global-chlorophyl:v20220801",
-	Name:        "Global chlorophyl",
+	Name:        "Chlorophyll-a concentration",
 	Description: "Chlorophyll-a is the light-harvesting pigment found in all photosynthetic plants. Its concentration in the ocean is used as an index of phytoplankton biomass and, as such, is a key input to primary productivity models. The moderate resolution imaging spectroradiometer (MODIS) instrument aboard NASA's Terra and Aqua satellites measures ocean color every day, from which global chlorophyll-a concentrations are derived. Ocean phytoplankton chemically fix carbon through photosynthesis, taking in dissolved carbon dioxide and producing oxygen. Through this process, marine plants capture about an equal amount of carbon as does photosynthesis by land vegetation. Changes in the amount of phytoplankton indicate the change in productivity of the oceans and provide a key ocean link for global climate change monitoring. Scientists use chlorophyll in modeling Earth's biogeochemical cycles such as the carbon cycle or the nitrogen cycle. Additionally, on short time scales, chlorophyll can be used to trace oceanographic currents, jets, and plumes. The 1 kilometer resolution and nearly daily global coverage of the MODIS data thus allows scientists to observe mesoscale oceanographic features in coastal and estuarine environments, which are of increasing importance in marine science studies. Source: NASA Earth Observations.",
 	Source:      "GEE",
 	Type:        "4wings",
@@ -109,8 +109,8 @@ var GEE_DATASETS = []types.Dataset{{
 	},
 }, {
 	ID:          "public-global-terra-atmosphere",
-	Name:        "Aerosol",
-	Description: "",
+	Name:        "Aerosol optical thickness",
+	Description: "Aerosol optical thickness at 0.55 microns for both ocean (best) and land (corrected): mean of daily mean",
 	Source:      "GEE",
 	Type:        "4wings",
 	StartDate:   time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC),
