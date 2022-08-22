@@ -7,6 +7,15 @@ steps:
     - '-c'
     - |-
       apt-get update && apt-get install -y unzip build-essential && ls && make VERSION=$TAG_NAME release-linux
+
+  - name: 'gcr.io/cloud-builders/gsutil'
+    entrypoint: 'bash'
+    args:
+    - '-eEuo'
+    - 'pipefail'
+    - '-c'
+    - |-
+      ls . && ls ./dist
   - name: "gcr.io/cloud-builders/gsutil"
     args:
       [
