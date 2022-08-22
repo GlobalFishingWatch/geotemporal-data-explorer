@@ -7,10 +7,9 @@ steps:
     - '-c'
     - |-
       apt-get update && apt-get install -y unzip build-essential && ls && make VERSION=$TAG_NAME release-linux
-  - name: "gcr.io/cloud-builders/gcloud"
+  - name: "gcr.io/cloud-builders/gsutil"
     args:
       [
-        "gsutil",
         "cp",
         "./dist/geotemporal-data-explorer-linux-amd64-$TAG_NAME",
         "gs://raul-import/versions/$TAG_NAME"
