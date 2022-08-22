@@ -21,7 +21,21 @@ steps:
       [
         "cp",
         "./dist/geotemporal-data-explorer-linux-amd64-$TAG_NAME",
-        "gs://raul-import/versions/$TAG_NAME"
+        "gs://geotemporal-data-explorer-releases/versions/geotemporal-data-explorer-linux-amd64-$TAG_NAME"
+      ]
+  - name: "gcr.io/cloud-builders/gsutil"
+    args:
+      [
+        "cp",
+        "./dist/geotemporal-data-explorer-linux-amd64-$TAG_NAME",
+        "gs://geotemporal-data-explorer-releases/versions/geotemporal-data-explorer-linux-amd64-latest"
+      ]
+  - name: "gcr.io/cloud-builders/gsutil"
+    args:
+      [
+        "cp",
+        "./scripts/install.sh",
+        "gs://geotemporal-data-explorer-releases/install.sh"
       ]
 
 
