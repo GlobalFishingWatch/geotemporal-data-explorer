@@ -35,7 +35,14 @@ steps:
       [
         "cp",
         "./scripts/install.sh",
-        "gs://geotemporal-data-explorer-releases/install.sh"
+        "gs://geotemporal-data-explorer-releases/install-$TAG_NAME.sh"
+      ]
+  - name: "gcr.io/cloud-builders/gsutil"
+    args:
+      [
+        "cp",
+        "./scripts/install.sh",
+        "gs://geotemporal-data-explorer-releases/install-latest.sh"
       ]
 
 
