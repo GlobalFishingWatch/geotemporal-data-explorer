@@ -43,7 +43,7 @@ build: $(LIBS)
 .PHONY: release-linux
 release-linux: $(LIBS)
 	mkdir -p ./dist
-	$(LDFLAGS) GOOS=linux GOARCH=amd64 go build  -o ./dist/${NAME}-linux-amd64 -ldflags="-r $(LIB_PATH)" main.go
+	$(LDFLAGS) GOOS=linux GOARCH=amd64 go build  -o ./dist/${NAME}-linux-amd64-${VERSION} -ldflags="-r $(LIB_PATH)" main.go
 	
 .PHONY: release-mac
 release-mac: mac-libs
