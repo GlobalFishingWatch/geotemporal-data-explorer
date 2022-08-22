@@ -1,5 +1,5 @@
 DUCKDB_VERSION=0.4.0
-LIB_PATH := $(shell pwd)/lib
+LIB_PATH := /var/lib/libduckdb
 NAME=geotemporal-data-explorer
 
 ifeq ($(shell uname -s),Darwin)
@@ -15,9 +15,14 @@ LIBS := lib/libduckdb.$(LIB_EXT)
 LDFLAGS := LIB=libduckdb.$(LIB_EXT) CGO_LDFLAGS="-L$(LIB_PATH)" $(LIBRARY_PATH) CGO_CFLAGS="-I$(LIB_PATH)"
 
 $(LIBS):
-	mkdir -p lib
-	curl -Lo lib/libduckdb.zip https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-$(ARCH_OS).zip
-	cd lib; unzip -u libduckdb.zip
+	mkdir -p /var/lib/libduckdb
+	curl -Lo /var/lib/libduckdb/libduckdb.zip https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-$(ARCH_OS).zip
+	unzip -u /var/lib/libduckdb/libduckdb.zip -d /var/lib/libduckdb
+
+mac-libs:
+	mkdir -p /var/lib/libduckdb
+	curl -Lo /var/lib/libduckdb/libduckdb.zip https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-osx-universal.zip
+	unzip -u /var/lib/libduckdb/libduckdb.zip -d /var/lib/libduckdb
 
 .PHONY: install
 install: $(LIBS)
@@ -33,14 +38,18 @@ test: $(LIBS)
 
 .PHONY: build
 build: $(LIBS)
-	$(LDFLAGS) go build -o 4wings -ldflags="-r $(LIB_PATH)" main.go
+	$(LDFLAGS) go build -o geotemporal-data-explorer -ldflags="-r $(LIB_PATH)" main.go
 
+.PHONY: release-linux
+release-linux: $(LIBS)
+	mkdir -p ./dist
+	$(LDFLAGS) GOOS=linux GOARCH=amd64 go build  -o ./dist/${NAME}-linux-amd64 -ldflags="-r $(LIB_PATH)" main.go
+	
 .PHONY: release-mac
-release-mac: $(LIBS)
-	make ./dist
-	$(LDFLAGS) GOOS=darwin GOARCH=arm64 go build  -o ./dist/${NAME}-arm64 -ldflags="-r $(LIB_PATH)" main.go
-	$(LDFLAGS) GOOS=darwin GOARCH=amd64 go build  -o ./dist/${NAME}-amd64 -ldflags="-r $(LIB_PATH)" main.go
-	lipo -create -output ./dist/${NAME}-osx ./dist/${NAME}-amd64 ./dist/${NAME}-arm64
+release-mac: mac-libs
+	mkdir -p ./dist
+	$(LDFLAGS) GOOS=darwin GOARCH=arm64 go build  -o ./dist/${NAME}-darwin-arm64 -ldflags="-r $(LIB_PATH)" main.go
+	
 
 .PHONY: clean
 clean:
