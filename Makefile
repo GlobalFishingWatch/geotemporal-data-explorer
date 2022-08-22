@@ -48,7 +48,7 @@ release-linux: $(LIBS)
 .PHONY: release-mac
 release-mac: mac-libs
 	mkdir -p ./dist
-	$(LDFLAGS) GOOS=darwin GOARCH=arm64 go build  -o ./dist/${NAME}-darwin-arm64 -ldflags="-r $(LIB_PATH)" main.go
+	$(LDFLAGS) GOOS=darwin GOARCH=arm64 go build  -o ./dist/${NAME}-darwin-arm64-${VERSION} -ldflags="-r $(LIB_PATH)" main.go
 	
 
 .PHONY: clean

@@ -1,0 +1,20 @@
+steps:
+  - name: 'golang:1.19'
+    entrypoint: 'bash'
+    args:
+    - '-eEuo'
+    - 'pipefail'
+    - '-c'
+    - |-
+      apt-get update && apt-get install unzip build-essential && ls && make VERSION=$TAG_NAME release-linux
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      [
+        "gsutil",
+        "cp",
+        "./dist/geotemporal-data-explorer-linux-amd64-$TAG_NAME",
+        "gs://raul-import/versions"
+      ]
+
+
+timeout: 900s
