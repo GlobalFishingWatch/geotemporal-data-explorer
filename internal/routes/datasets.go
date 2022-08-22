@@ -114,6 +114,7 @@ func CreateDataset(c *gin.Context) {
 			return
 		}
 		c.JSON(200, dataset)
+		utils.RestartServer()
 		return
 	} else {
 		c.AbortWithStatusJSON(types.UnprocessableEntityCode, types.NewUnprocessableEntityStandard([]types.MessageError{{

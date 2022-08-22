@@ -2,12 +2,15 @@ package types
 
 import (
 	"database/sql"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	bq "google.golang.org/api/bigquery/v2"
 )
+
+var Quit = make(chan os.Signal)
 
 type Dataset struct {
 	ID            string        `json:"id,omitempty"  binding:"-"`

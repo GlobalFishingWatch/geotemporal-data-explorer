@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
 	"github.com/4wings/cli/assets"
@@ -15,6 +16,7 @@ import (
 	"github.com/4wings/cli/internal/middlewares"
 	"github.com/4wings/cli/internal/routes"
 	"github.com/4wings/cli/internal/utils"
+	"github.com/4wings/cli/types"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -26,22 +28,25 @@ var server = &cobra.Command{
 	Short: "Server",
 	Long:  `Server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		viper.Set("local", true)
-		viper.Set("gee", false)
-		if viper.GetString("gee-account-file") != "" {
-			log.Debugf("Reading gee account file %s", viper.GetString("gee-account-file"))
-			geeAccount, err := utils.ReadFile(viper.GetString("gee-account-file"))
-			if err != nil {
-				log.Errorf("error reading gee account file %e", err)
-			} else {
-				viper.Set("gee", true)
-				viper.Set("gee-account", geeAccount)
+		var wg sync.WaitGroup
+		exit := make(chan os.Signal)
+		signal.Notify(exit, os.Interrupt)
+
+		go func() {
+			for {
+				wg.Add(1)
+				go func() {
+					RunServer(port, true)
+
+					log.Debug("Restarting server")
+					wg.Done()
+				}()
+				wg.Wait()
 			}
-		}
-		if viper.GetString("gfw-token") != "" {
-			viper.Set("gfw", true)
-		}
-		RunServer(port, true)
+		}()
+		<-exit
+		types.Quit <- os.Kill
+
 	},
 }
 
@@ -61,6 +66,22 @@ func init() {
 }
 
 func RunServer(port int, local bool) {
+	viper.Set("local", true)
+	viper.Set("gee", false)
+	if viper.GetString("gee-account-file") != "" {
+		log.Debugf("Reading gee account file %s", viper.GetString("gee-account-file"))
+		geeAccount, err := utils.ReadFile(viper.GetString("gee-account-file"))
+		if err != nil {
+			log.Errorf("error reading gee account file %e", err)
+		} else {
+			viper.Set("gee", true)
+			viper.Set("gee-account", geeAccount)
+		}
+	}
+	if viper.GetString("gfw-token") != "" {
+		viper.Set("gfw", true)
+	}
+
 	log.Debug("Loading server")
 	r := gin.Default()
 
@@ -122,9 +143,9 @@ func RunServer(port int, local bool) {
 
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 5 seconds.
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
-	<-quit
+
+	signal.Notify(types.Quit, os.Interrupt)
+	<-types.Quit
 	log.Debug("Shutdown Server ...")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

@@ -198,7 +198,7 @@ func openDuckDB() (*duckdb, error) {
 	if err != nil {
 		return nil, err
 	}
-	dbFields, err := sqlx.Connect("duckdb", "")
+	dbFields, err := sqlx.Connect("duckdb", "local-files.db?access_mode=READ_WRITE")
 	if err != nil {
 		return nil, err
 	}
@@ -207,17 +207,6 @@ func openDuckDB() (*duckdb, error) {
 		dbFields,
 		semaphore.NewWeighted(1),
 	}, err
-}
-func (duckdb *duckdb) reconnect() error {
-	duckdb.Close()
-	time.Sleep(20 * time.Second)
-	log.Debug("Opening DuckDB ")
-	db, err := sqlx.Connect("duckdb", fmt.Sprintf("%s?access_mode=READ_WRITE", viper.GetString("local-db")))
-	if err != nil {
-		return err
-	}
-	duckdb.db = db
-	return nil
 }
 
 func (duckdb *duckdb) existTable(tablename string) bool {
@@ -508,8 +497,7 @@ func (duckdb *duckdb) IngestDataset(dataset types.Dataset) error {
 	dataset.EndDate = max
 
 	dataset.Status = types.Completed
-	time.Sleep(20 * time.Second)
-	// duckdb.reconnect()
+
 	err = utils.WriteDataset(dataset)
 	if err != nil {
 		log.Errorf("error saving dataset %e", err)

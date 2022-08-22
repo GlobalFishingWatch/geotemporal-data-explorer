@@ -106,7 +106,6 @@ func CreateNew4wingsDataset(dataset types.Dataset) (types.Dataset, error) {
 	// }
 	err := utils.WriteDataset(dataset)
 	database.LocalDB.IngestDataset(dataset)
-
 	return dataset, err
 }
 

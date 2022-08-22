@@ -25,7 +25,7 @@ install: $(LIBS)
 
 .PHONY: develop
 develop: $(LIBS)
-	$(LDFLAGS) reflex -r "\.go$"" -s  -- go run -ldflags="-r $(LIB_PATH)" main.go -v server
+	$(LDFLAGS) reflex -r "\.go$"" -s  -- go run -ldflags="-r $(LIB_PATH)" main.go -v server 
 
 .PHONY: test
 test: $(LIBS)
