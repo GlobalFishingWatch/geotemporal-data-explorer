@@ -198,7 +198,7 @@ func openDuckDB() (*duckdb, error) {
 	if err != nil {
 		return nil, err
 	}
-	dbFields, err := sqlx.Connect("duckdb", "local-files.db?access_mode=READ_WRITE")
+	dbFields, err := sqlx.Connect("duckdb", "")
 	if err != nil {
 		return nil, err
 	}
