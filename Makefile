@@ -24,13 +24,18 @@ mac-libs:
 	curl -Lo /var/lib/libduckdb/libduckdb.zip https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-osx-universal.zip
 	unzip -u /var/lib/libduckdb/libduckdb.zip -d /var/lib/libduckdb
 
+linux-libs:
+	mkdir -p /var/lib/libduckdb
+	curl -Lo /var/lib/libduckdb/libduckdb.zip https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-linux-amd64.zip
+	unzip -u /var/lib/libduckdb/libduckdb.zip -d /var/lib/libduckdb
+
 .PHONY: install
 install: $(LIBS)
 	$(LDFLAGS) go install -ldflags="-r $(LIB_PATH)" ./...
 
 .PHONY: develop
 develop: $(LIBS)
-	$(LDFLAGS) reflex -r "\.go$"" -s  -- go run -ldflags="-r $(LIB_PATH)" main.go -v server 
+	$(LDFLAGS) reflex -r "\.go$"" -s  -- go run -ldflags="-r $(LIB_PATH)" main.go -v server  
 
 .PHONY: test
 test: $(LIBS)
@@ -41,7 +46,7 @@ build: $(LIBS)
 	$(LDFLAGS) go build -o geotemporal-data-explorer -ldflags="-r $(LIB_PATH)" main.go
 
 .PHONY: release-linux
-release-linux: $(LIBS)
+release-linux: linux-libs
 	mkdir -p ./dist
 	$(LDFLAGS) GOOS=linux GOARCH=amd64 go build  -o ./dist/${NAME}-linux-amd64-${VERSION} -ldflags="-r $(LIB_PATH)" main.go
 	
