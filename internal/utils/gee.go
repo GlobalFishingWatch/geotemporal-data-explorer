@@ -631,7 +631,7 @@ func ReadGEE(dataset *types.Dataset, z, x, y int, temporalAggregation bool, date
 	} else {
 		list = make([][]int, numCells*len(g.Image))
 	}
-	total := dataset.Configuration.Max - dataset.Configuration.Min
+	total := *dataset.Configuration.Max - *dataset.Configuration.Min
 	step := float64(total) / float64(65536)
 
 	if len(g.Image) != limit {
@@ -661,7 +661,7 @@ func ReadGEE(dataset *types.Dataset, z, x, y int, temporalAggregation bool, date
 
 				r, _, _, _ := overpaintImage.At(j, numCellsLat-(i+1)).RGBA()
 				if r > 0 {
-					value := ((float64(r)*step + float64(dataset.Configuration.Min)) * dataset.Configuration.Scale) + dataset.Configuration.Offset
+					value := ((float64(r)*step + float64(*dataset.Configuration.Min)) * dataset.Configuration.Scale) + dataset.Configuration.Offset
 					if value > 0 {
 						list[index][0] += int(value * multiplier)
 						list[index][1]++
