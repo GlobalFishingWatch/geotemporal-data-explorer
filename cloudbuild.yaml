@@ -34,7 +34,7 @@ steps:
       [
         "cp",
         "./scripts/install.sh",
-        "gs://geotemporal-data-explorer-releases/install-latest.sh"
+        "gs://geotemporal-data-explorer-releases/install-last.sh"
       ]
 
 
