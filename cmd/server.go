@@ -21,6 +21,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/toqueteos/webbrowser"
 )
 
 var server = &cobra.Command{
@@ -51,6 +52,7 @@ var server = &cobra.Command{
 }
 
 var port int
+var openedBrowser bool
 
 func init() {
 	server.Flags().IntVarP(&port, "port", "p", 8080, "Port")
@@ -63,6 +65,10 @@ func init() {
 	viper.BindPFlag("gfw-token", server.Flags().Lookup("gfw-token"))
 
 	rootCmd.AddCommand(server)
+	openedBrowser = false
+	if os.Getenv("ENV") == "dev" {
+		openedBrowser = true
+	}
 }
 
 func RunServer(port int, local bool) {
@@ -133,12 +139,17 @@ func RunServer(port int, local bool) {
 		WriteTimeout:   time.Duration(300) * time.Second,
 		MaxHeaderBytes: 1 << 60,
 	}
-
+	if !openedBrowser {
+		openedBrowser = true
+		time.Sleep(2000)
+		webbrowser.Open(fmt.Sprintf("http://localhost:%d", port))
+	}
 	go func() {
 		// service connections
 		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
+
 	}()
 
 	// Wait for interrupt signal to gracefully shutdown the server with
