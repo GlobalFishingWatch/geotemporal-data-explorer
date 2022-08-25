@@ -4,10 +4,12 @@ DUCKDB_VERSION=0.4.0
 mkdir -p /var/lib/libduckdb
 
 if [ "$SO" == "Darwin" ]; then
+    rm -rf /usr/local/bin/geotemporal-data-explorer
     curl -Lo /var/lib/libduckdb/libduckdb.zip https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-osx-universal.zip
     curl https://storage.googleapis.com/geotemporal-data-explorer-releases/versions/geotemporal-data-explorer-darwin-arm64-latest --output /usr/local/bin/geotemporal-data-explorer
     chmod +x /usr/local/bin/geotemporal-data-explorer
 else
+    rm -rf /bin/geotemporal-data-explorer
     curl -Lo /var/lib/libduckdb/libduckdb.zip https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-linux-amd64.zip
     curl https://storage.googleapis.com/geotemporal-data-explorer-releases/versions/geotemporal-data-explorer-linux-amd64-latest --output /bin/geotemporal-data-explorer
     chmod +x /bin/geotemporal-data-explorer
