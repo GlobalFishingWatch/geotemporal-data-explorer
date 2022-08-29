@@ -10,4 +10,8 @@ gee-sa.json
 .DS_Store
 dist/
 
-dist/
+assets/_next/
+assets/icons/
+assets/*.html
+assets/*.txt
+

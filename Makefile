@@ -44,7 +44,7 @@ install: $(LIBS)
 	$(LDFLAGS) go install -ldflags="-r $(LIB_PATH)" ./...
 
 .PHONY: develop
-develop: $(LIBS)
+develop: ui $(LIBS)
 	$(LDFLAGS) ENV=dev reflex -r "\.go$"" -s  -- go run -ldflags="-r $(LIB_PATH)" main.go -v server  
 
 .PHONY: test
