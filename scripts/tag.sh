@@ -9,7 +9,7 @@ rm -rf ./assets/ui.zip
 rm -rf ./assets/__MACOSX
 
 echo "Creating release in mac $1"
-make VERSION=$1 release-mac 
+sudo make VERSION=$1 release-mac 
 
 gsutil cp ./dist/geotemporal-data-explorer-darwin-arm64-$1 gs://geotemporal-data-explorer-releases/versions/geotemporal-data-explorer-darwin-arm64-$1
 gsutil cp ./dist/geotemporal-data-explorer-darwin-arm64-$1 gs://geotemporal-data-explorer-releases/versions/geotemporal-data-explorer-darwin-arm64-latest
