@@ -29,6 +29,16 @@ linux-libs:
 	curl -Lo /var/lib/libduckdb/libduckdb.zip https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/libduckdb-linux-amd64.zip
 	unzip -u /var/lib/libduckdb/libduckdb.zip -d /var/lib/libduckdb
 
+ui:
+	mkdir -p ./dist
+	find ./assets -type f ! -name "*.go" -exec rm {} \;
+	rm -rf ./assets/_next
+	rm -rf ./assets/icons
+
+	curl -Lo ./assets/ui.zip https://storage.googleapis.com/geotemporal-data-explorer-releases/ui/latest.zip
+	unzip -u ./assets/ui.zip -d ./assets
+	rm -rf ./assets/ui.zip
+	rm -rf ./assets/__MACOSX
 .PHONY: install
 install: $(LIBS)
 	$(LDFLAGS) go install -ldflags="-r $(LIB_PATH)" ./...
@@ -46,13 +56,12 @@ build: $(LIBS)
 	$(LDFLAGS) go build -o geotemporal-data-explorer -ldflags="-r $(LIB_PATH)" main.go
 
 .PHONY: release-linux
-release-linux: linux-libs
+release-linux: ui linux-libs
 	mkdir -p ./dist
 	$(LDFLAGS) GOOS=linux GOARCH=amd64 go build  -o ./dist/${NAME}-linux-amd64-${VERSION} -ldflags="-r $(LIB_PATH)" main.go
 	
 .PHONY: release-mac
-release-mac: mac-libs
-	mkdir -p ./dist
+release-mac: ui mac-libs
 	$(LDFLAGS) GOOS=darwin GOARCH=arm64 go build  -o ./dist/${NAME}-darwin-arm64-${VERSION} -ldflags="-r $(LIB_PATH)" main.go
 	
 
