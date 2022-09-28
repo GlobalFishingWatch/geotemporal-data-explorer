@@ -4,7 +4,7 @@ Geotemporal-data-explorer is a tool to research the Google Earth Engine datasets
 
 ## Install
 
-Only available for linux with intel chips and OSX with ARM chips
+Only available for linux with intel chips and OSX with ARM chips. Working in support more platforms.
 
 ```bash
 sudo curl -o- https://storage.googleapis.com/geotemporal-data-explorer-releases/install-last.sh | sudo bash
