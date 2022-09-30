@@ -107,25 +107,28 @@ var GEE_DATASETS = []types.Dataset{{
 		Intervals:       []string{"day", "month"},
 		ValueMultiplier: 10000,
 	},
-}, {
-	ID:          "public-global-terra-atmosphere",
-	Name:        "Aerosol optical thickness",
-	Description: "Aerosol optical thickness at 0.55 microns for both ocean (best) and land (corrected): mean of daily mean",
-	Source:      "GEE",
-	Type:        "4wings",
-	StartDate:   time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC),
-	EndDate:     time.Date(2030, 12, 31, 0, 0, 0, 0, time.UTC),
-	Unit:        "kg/(m^2*s)",
-	Configuration: types.Configuration{
-		Images:    []string{"", "", "MODIS/061/MOD08_M3", ""},
-		Band:      "Aerosol_Optical_Depth_Land_Ocean_Mean_Mean",
-		Min:       &[]float64{-100}[0],
-		Max:       &[]float64{5000}[0],
-		Scale:     0.001,
-		Offset:    0,
-		Intervals: []string{"month"},
-	},
-}}
+},
+
+// , {
+// 	ID:          "public-global-terra-atmosphere",
+// 	Name:        "Aerosol optical thickness",
+// 	Description: "Aerosol optical thickness at 0.55 microns for both ocean (best) and land (corrected): mean of daily mean",
+// 	Source:      "GEE",
+// 	Type:        "4wings",
+// 	StartDate:   time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC),
+// 	EndDate:     time.Date(2030, 12, 31, 0, 0, 0, 0, time.UTC),
+// 	Unit:        "kg/(m^2*s)",
+// 	Configuration: types.Configuration{
+// 		Images:    []string{"", "", "MODIS/061/MOD08_M3", ""},
+// 		Band:      "Aerosol_Optical_Depth_Land_Ocean_Mean_Mean",
+// 		Min:       &[]float64{-100}[0],
+// 		Max:       &[]float64{5000}[0],
+// 		Scale:     0.001,
+// 		Offset:    0,
+// 		Intervals: []string{"month"},
+// 	},
+// }
+}
 var GFW_DATASETS = []types.Dataset{{
 	ID:          "public-global-fishing-effort:latest",
 	Name:        "Apparent Fishing Effort",
