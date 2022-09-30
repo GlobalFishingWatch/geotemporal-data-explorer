@@ -36,9 +36,8 @@ func serveReverseProxy(target string, res http.ResponseWriter, req *http.Request
 CreateProxyHandler Create gin handler for path parameter
 */
 func GetGFWTile(c *gin.Context) {
-
 	c.Request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", viper.GetString("gfw-token")))
-	c.Request.Header.Add("Referer", "http://geotemporal-data-explorer")
+	// c.Request.Header.Add("Referer", "https://globalfishingwatch.org")
 	c.Request.URL.Path = strings.ReplaceAll(c.Request.URL.Path, "/v1", "/v2")
 
 	serveReverseProxy("https://gateway.api.globalfishingwatch.org", c.Writer, c.Request)
