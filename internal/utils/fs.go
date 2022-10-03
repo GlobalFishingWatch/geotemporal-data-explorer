@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -49,9 +50,15 @@ func RemoveFile(path string) error {
 	}
 	return os.Remove(path)
 }
+func createDataPath() {
+	CreateFolder(fmt.Sprintf("./%s", internal.DATA_FOLDER))
+	ioutil.WriteFile(internal.DATASETS_PATH, []byte("[]"), 0644)
+}
 
 func ReadDatasetFile() ([]types.Dataset, error) {
 	if !ExistFile(internal.DATASETS_PATH) {
+		fmt.Println("Creating datasets")
+		createDataPath()
 		return nil, nil
 	}
 	jsonFile, err := os.Open(internal.DATASETS_PATH)

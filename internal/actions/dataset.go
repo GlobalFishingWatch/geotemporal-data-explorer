@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/4wings/cli/internal"
@@ -27,7 +28,11 @@ func GetDatasets() ([]types.Dataset, error) {
 		internalDataset = append(internalDataset, internal.GFW_DATASETS...)
 	}
 	if len(localDatasets) > 0 {
-		return append(internalDataset, localDatasets...), nil
+		for _, d := range localDatasets {
+			if strings.ToUpper(d.Source) != "GEE" || (strings.ToUpper(d.Source) == "GEE" && viper.GetBool("gee")) {
+				internalDataset = append(internalDataset, d)
+			}
+		}
 	}
 	return internalDataset, nil
 }
