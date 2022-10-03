@@ -45,7 +45,7 @@ install: $(LIBS)
 
 .PHONY: develop
 develop: ui $(LIBS)
-	$(LDFLAGS) ENV=dev reflex -r "\.go$"" -s  -- go run -ldflags="-r $(LIB_PATH)" main.go -v server  
+	$(LDFLAGS) ENV=dev reflex -r "\.go$"" -s  -- go run -ldflags="-r $(LIB_PATH)" main.go -v server --gee-account-file=./gee-sa.json  --gfw-token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtpZEtleSJ9.eyJkYXRhIjp7Im5hbWUiOiJnZW90ZW1wb3JhbC1kYXRhLWV4cGxvcmVyIiwidXNlcklkIjo5LCJhcHBsaWNhdGlvbk5hbWUiOiJnZW90ZW1wb3JhbC1kYXRhLWV4cGxvcmVyIiwiaWQiOjIwNiwidHlwZSI6InVzZXItYXBwbGljYXRpb24ifSwiaWF0IjoxNjYzOTI0MjkwLCJleHAiOjE5NzkyODQyOTAsImF1ZCI6ImdmdyIsImlzcyI6ImdmdyJ9.kPQtRN4lv3oFPPfYd-hhqkno6fjnUHqSXmgYdCFWhunX17VHaAI0GWOnLtgVfl2RhCRkhxSBdwVEMQhhWXJ0XDH-lhdHDYKCNdyGpAK2WKnmlZcC4IGVCqIixOx1BRjXX01DvjwCE_x8enVlqD0f3PEL6GvoMKl7Sn4Sj6NHOKSzP6pV4FXy08MU5lb7NauLbJdZCPE31i3o1xgE2vwlshKcEp_FWw5sjVY5axb5Ml3zM9faTR6acMsgWzVMhZXec75FCM4QT4zw2PGTYBnMeDYD3M1ovPyH1ZrF_PGpYkrA24riU48oTEvfzXnW0uPVSCVEmNtPEdFSwK4BBCkb2xcTy74ASD9sWWwI1uWu1BbRuWAQInYZL7vUs5Y_1x74I72ZhbX9Ew1tZdKYnlnbD8O8IEQKfXvHuYtcJPs5JU4iDPlY_scBuW4eajhkAtZpj3_mk6IjJwhHBCUnHdL6Rf_l3IMP-GCK-J8NY3PbgGWC6X7xzxGVz-bejDsi4ugy
 
 .PHONY: test
 test: $(LIBS)
