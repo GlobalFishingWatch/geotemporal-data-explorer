@@ -113,3 +113,5 @@ In a empty `datasets.json` file, the file will look like:
   }
 ]
 ```
+
+![](https://github.com/GlobalFishingWatch/geotemporal-data-explorer/doc/demo-custom-gee.gif)
