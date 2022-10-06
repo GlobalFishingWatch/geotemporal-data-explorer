@@ -35,6 +35,8 @@ following the steps of this [link](https://developers.google.com/earth-engine/gu
 
 ## Add new Google Earth Engine dataset
 
+![How To Upload Layers](https://storage.googleapis.com/geo-temporal-repository-materials/demo.gif)
+
 When you run the application for the first time, the application creates a folder called data in the path where you ran it. Inside there is a `datasets.json` file. Inside this file you can add the datasets you want.
 A GEE dataset is composed of the following fields:
 
