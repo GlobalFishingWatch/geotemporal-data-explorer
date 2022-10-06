@@ -542,6 +542,7 @@ func generateGIF(z, x, y, numCellsLat, numCellsLon int, dataset *types.Dataset, 
 	if err != nil {
 		return nil, err
 	}
+
 	resp, err := client.Post("https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/videoThumbnails?fields=name", "application/json", bytes.NewBuffer(body.Bytes()))
 	if err != nil {
 		return nil, err
@@ -648,9 +649,15 @@ func ReadGEE(dataset *types.Dataset, z, x, y int, temporalAggregation bool, date
 		multiplier = dataset.Configuration.ValueMultiplier
 	}
 	overpaintImage := image.NewRGBA(image.Rect(0, 0, imgWidth, imgHeight))
-	fmt.Println(" g.Image", len(g.Image))
+
 	for numImage, img := range g.Image {
-		draw.Draw(overpaintImage, overpaintImage.Bounds(), img, image.ZP, draw.Over)
+		if dataset.Configuration.ExtendMonthly && interval == "month" {
+			if numImage%12 == 0 {
+				draw.Draw(overpaintImage, overpaintImage.Bounds(), img, image.ZP, draw.Over)
+			}
+		} else {
+			draw.Draw(overpaintImage, overpaintImage.Bounds(), img, image.ZP, draw.Over)
+		}
 
 		for i := 0; i < numCellsLat; i++ {
 			for j := 0; j < numCellsLon; j++ {
@@ -668,6 +675,7 @@ func ReadGEE(dataset *types.Dataset, z, x, y int, temporalAggregation bool, date
 				if r > 0 {
 					value := ((float64(r)*step + float64(*dataset.Configuration.Min)) * dataset.Configuration.Scale) + dataset.Configuration.Offset
 					if value > 0 {
+
 						list[index][0] += int(value * multiplier)
 						list[index][1]++
 						list[index][2] = 1
@@ -675,6 +683,7 @@ func ReadGEE(dataset *types.Dataset, z, x, y int, temporalAggregation bool, date
 				}
 			}
 		}
+
 	}
 	return list, nil
 

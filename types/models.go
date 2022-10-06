@@ -29,8 +29,8 @@ type Configuration struct {
 	Intervals            []string `json:"intervals,omitempty" binding:"-"`
 	Images               []string `json:"images,omitempty" binding:"-"`
 	Band                 string   `json:"band,omitempty" binding:"-"`
-	Min                  *float64  `json:"min,omitempty" binding:"-"`
-	Max                  *float64  `json:"max,omitempty" binding:"-"`
+	Min                  *float64 `json:"min,omitempty" binding:"-"`
+	Max                  *float64 `json:"max,omitempty" binding:"-"`
 	Scale                float64  `json:"scale" binding:"-"`
 	Offset               float64  `json:"offset" binding:"-"`
 	PolygonID            string   `json:"polygonId,omitempty" binding:"-"`
@@ -41,6 +41,7 @@ type Configuration struct {
 	Fields               Fields   `json:"fields,omitempty"`
 	AggregationOperation string   `json:"aggregationOperation,omitempty" binding:"-"`
 	ValueMultiplier      float64  `json:"valueMultiplier,omitempty" binding:"-"`
+	ExtendMonthly        bool     `json:"extendMonthly,omitempty" binding:"-"`
 }
 
 type Fields struct {
