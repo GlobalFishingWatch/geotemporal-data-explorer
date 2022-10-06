@@ -114,7 +114,7 @@ var GEE_DATASETS = []types.Dataset{{
 		Description: "Human footprint infrastructure",
 		Source:      "GEE",
 		Type:        "4wings",
-		StartDate:   time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
+		StartDate:   time.Date(2011, 1, 1, 0, 0, 0, 0, time.UTC),
 		EndDate:     time.Date(2020, 12, 31, 0, 0, 0, 0, time.UTC),
 		Unit:        "",
 		Configuration: types.Configuration{
@@ -134,7 +134,7 @@ var GEE_DATASETS = []types.Dataset{{
 		Description: "Human footprint population density",
 		Source:      "GEE",
 		Type:        "4wings",
-		StartDate:   time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
+		StartDate:   time.Date(2011, 1, 1, 0, 0, 0, 0, time.UTC),
 		EndDate:     time.Date(2020, 12, 31, 0, 0, 0, 0, time.UTC),
 		Unit:        "",
 		Configuration: types.Configuration{
@@ -154,7 +154,7 @@ var GEE_DATASETS = []types.Dataset{{
 		Description: "Human footprint land use",
 		Source:      "GEE",
 		Type:        "4wings",
-		StartDate:   time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
+		StartDate:   time.Date(2011, 1, 1, 0, 0, 0, 0, time.UTC),
 		EndDate:     time.Date(2020, 12, 31, 0, 0, 0, 0, time.UTC),
 		Unit:        "",
 		Configuration: types.Configuration{
