@@ -514,7 +514,7 @@ func generateGIF(z, x, y, numCellsLat, numCellsLon int, dataset *types.Dataset, 
 	conf.Scopes = []string{
 		"https://www.googleapis.com/auth/earthengine",
 	}
-	log.Debugf("Using image %s and band %s between %.2f, %.2f", dataset.Configuration.Images[INTERVALS_GEE[interval]], dataset.Configuration.Band, dataset.Configuration.Min, dataset.Configuration.Max)
+	log.Debugf("Using image %s and band %s between %.2f, %.2f", dataset.Configuration.Images[INTERVALS_GEE[interval]], dataset.Configuration.Band, *dataset.Configuration.Min, *dataset.Configuration.Max)
 	client := conf.Client(context.TODO())
 	var body bytes.Buffer
 	paramsQuery := map[string]interface{}{
@@ -533,6 +533,8 @@ func generateGIF(z, x, y, numCellsLat, numCellsLon int, dataset *types.Dataset, 
 	if interval == "day" {
 		err = jsonBodyDayGEE.Execute(&body, paramsQuery)
 	} else if interval == "month" {
+		err = jsonBodyDayGEE.Execute(&body, paramsQuery)
+	} else if interval == "year" {
 		err = jsonBodyDayGEE.Execute(&body, paramsQuery)
 	} else {
 		return nil, fmt.Errorf("interval %s not supported", interval)
@@ -607,6 +609,9 @@ func ReadGEE(dataset *types.Dataset, z, x, y int, temporalAggregation bool, date
 		limit = MonthDiff(startDate, endDate)
 	} else if interval == "day" {
 		limit = DaysDiff(startDate, endDate)
+	} else if interval == "year" {
+		startDate = time.Date(startDate.Year(), 1, 1, 0, 0, 0, 0, time.UTC)
+		limit = YearsDiff(startDate, endDate)
 	}
 	var g *gif.GIF
 	for i := 0; i < 3; i++ {

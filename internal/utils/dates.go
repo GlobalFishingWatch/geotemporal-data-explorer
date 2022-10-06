@@ -61,3 +61,10 @@ func DaysDiff(a, b time.Time) int {
 	}
 	return int((b.UnixMilli() - a.UnixMilli()) / (24 * 60 * 60 * 1000))
 }
+
+func YearsDiff(a, b time.Time) int {
+	if a.Location() != b.Location() {
+		b = b.In(a.Location())
+	}
+	return b.Year() - a.Year() + 1
+}

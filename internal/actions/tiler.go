@@ -434,12 +434,13 @@ func GenerateTileGEE(dataset *types.Dataset, z, x, y int, dateRange string, form
 		start = (startDate.Year()-1970)*12 + int(startDate.Month()) - 1
 	} else if interval == "day" {
 		start = int(startDate.UnixMilli() / (24 * 60 * 60 * 1000))
+	} else if interval == "year" {
+		start = startDate.Year()
 	}
 
 	var value float64
 	hasData := false
 	for i, val := range list {
-
 		if val[2] == 0 {
 			value = 0
 			continue
@@ -475,6 +476,7 @@ func GenerateTileGEE(dataset *types.Dataset, z, x, y int, dateRange string, form
 	if !hasData {
 		return nil, nil, nil
 	}
+
 	if format == "mvt" {
 		return generateMVT(totalResults, z, x, y, int(numCellsLat), int(numCellsLon), temporalAggregation)
 	} else {

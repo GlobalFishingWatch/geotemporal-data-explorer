@@ -40,7 +40,7 @@ func Tile(c *gin.Context) {
 	} else if interval == "" {
 		c.AbortWithStatusJSON(types.UnprocessableEntityCode, types.NewUnprocessableEntityStandard([]types.MessageError{{
 			Title:  "interval",
-			Detail: "Interval is required. Possible values: hour, day, 10days, month",
+			Detail: "Interval is required. Possible values: hour, day, 10days, month, year",
 		}}))
 		return
 	}
