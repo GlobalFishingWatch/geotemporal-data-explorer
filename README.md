@@ -22,7 +22,7 @@ Available options:
 
 * -p: Port to listen (default 8080)
 * --gee-account-file=< path > : Path to the Service account to use Google Earth Engine. To obtain your account, follow the steps of [here](#google-earth-engine-account)
-* --gfw-token=< token >: Token of Global Fishing Watch to use data of it. You can obtain your own token [here](https://globalfishingwatch.org/ocean-engine/tokens)
+* --gfw-token=< token >: Token of Global Fishing Watch to use data of it. You can obtain your own token [here](https://globalfishingwatch.org/our-apis/tokens)
 
 Remember, in OSX, the first time that you run it, you will need to give permissions to the app in `Security & Privacy`
 
